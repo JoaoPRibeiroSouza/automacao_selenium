@@ -1,0 +1,448 @@
+class DemoblazeAutomacaoColab:
+    """
+    Classe de automação otimizada para Google Colab.
+    """
+    
+    def __init__(self):
+        """Inicializa a classe de automação."""
+        self.driver: Optional[webdriver.Chrome] = None
+        self.resultados: Dict[str, Any] = {}
+        self.cenarios = self._definir_cenarios()
+        print("🎭 Automação Demoblaze inicializada para Google Colab!")
+
+    def _definir_cenarios(self) -> Dict[str, Dict[str, Any]]:
+        """Define os 10 cenários de teste."""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        return {
+            'cenario_1': {
+                'nome': 'Cadastro com Username e Password válidos',
+                'tipo': 'signup',
+                'username': f'Usuario_Valido_{timestamp}',
+                'password': 'testeSenai1234',
+                'esperado': 'Sign up successful.',
+                'descricao': 'Testa cadastro com credenciais válidas'
+            },
+            'cenario_2': {
+                'nome': 'Cadastro com Username já existente',
+                'tipo': 'signup',
+                'username': 'LorranyMarimSenai',
+                'password': 'testeSenai1234',
+                'esperado': 'This user already exist.',
+                'descricao': 'Testa cadastro com usuário duplicado'
+            },
+            'cenario_3': {
+                'nome': 'Cadastro com campos vazios',
+                'tipo': 'signup',
+                'username': '',
+                'password': '',
+                'esperado': 'Please fill out Username and Password.',
+                'descricao': 'Testa validação de campos obrigatórios'
+            },
+            'cenario_4': {
+                'nome': 'Cadastro com senha muito curta',
+                'tipo': 'signup',
+                'username': f'Usuario_Senha_Curta_{timestamp}',
+                'password': '123',
+                'esperado': 'Sign up successful.',
+                'descricao': 'Testa aceitação de senhas curtas'
+            },
+            'cenario_5': {
+                'nome': 'Cadastro com caracteres especiais',
+                'tipo': 'signup',
+                'username': f'User@#$_{timestamp}',
+                'password': 'Senha@123!',
+                'esperado': 'Sign up successful.',
+                'descricao': 'Testa cadastro com caracteres especiais'
+            },
+            'cenario_6': {
+                'nome': 'Login com credenciais válidas',
+                'tipo': 'login',
+                'username': 'LorranyMarimSenai',
+                'password': 'testeSenai1234',
+                'esperado': 'login_success',
+                'descricao': 'Testa login com credenciais corretas'
+            },
+            'cenario_7': {
+                'nome': 'Login com username inválido',
+                'tipo': 'login',
+                'username': 'UsuarioInexistente123',
+                'password': 'testeSenai1234',
+                'esperado': 'User does not exist.',
+                'descricao': 'Testa login com usuário inexistente'
+            },
+            'cenario_8': {
+                'nome': 'Login com senha incorreta',
+                'tipo': 'login',
+                'username': 'LorranyMarimSenai',
+                'password': 'senhaErrada123',
+                'esperado': 'Wrong password.',
+                'descricao': 'Testa login com senha incorreta'
+            },
+            'cenario_9': {
+                'nome': 'Login com campos vazios',
+                'tipo': 'login',
+                'username': '',
+                'password': '',
+                'esperado': 'Please fill out Username and Password.',
+                'descricao': 'Testa validação de campos obrigatórios no login'
+            },
+            'cenario_10': {
+                'nome': 'Cadastro com username muito longo',
+                'tipo': 'signup',
+                'username': f'Usuario_Com_Nome_Muito_Longo_Para_Teste_{timestamp}_' + 'x' * 50,
+                'password': 'testeSenai1234',
+                'esperado': 'Sign up successful.',
+                'descricao': 'Testa cadastro com username extenso'
+            }
+        }
+
+    def inicializar_driver(self) -> bool:
+        """Inicializa o driver do Chrome otimizado para Colab."""
+        try:
+            print("🚗 Inicializando Chrome Driver...")
+            
+            chrome_options = Options()
+            
+            
+            chrome_options.add_argument("--headless")  
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--window-size=1920,1080")
+            chrome_options.add_argument("--disable-web-security")
+            chrome_options.add_argument("--allow-running-insecure-content")
+            chrome_options.add_argument("--disable-extensions")
+            chrome_options.add_argument("--disable-plugins")
+            chrome_options.add_argument("--disable-images")  
+            chrome_options.add_argument("--disable-javascript")  
+            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            chrome_options.add_experimental_option('useAutomationExtension', False)
+            
+            
+            self.driver = webdriver.Chrome(options=chrome_options)
+            
+            print("✅ Chrome Driver inicializado com sucesso!")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Erro ao inicializar driver: {e}")
+            return False
+
+    def acessar_site(self) -> bool:
+        """Acessa o site Demoblaze."""
+        try:
+            print("🌐 Acessando site Demoblaze...")
+            self.driver.get("https://demoblaze.com/")
+            
+            
+            WebDriverWait(self.driver, 15).until(
+                EC.presence_of_element_located((By.ID, "nava"))
+            )
+            
+            print("✅ Site acessado com sucesso!")
+            time.sleep(2)
+            return True
+            
+        except Exception as e:
+            print(f"❌ Erro ao acessar site: {e}")
+            return False
+
+    def executar_cadastro(self, username: str, password: str) -> str:
+        """Executa o processo de cadastro."""
+        try:
+            print(f"📝 Executando cadastro para: {username[:15]}...")
+            
+         
+            btn_sign_up = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "signin2"))
+            )
+            btn_sign_up.click()
+            time.sleep(2)
+
+          
+            input_user = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "sign-username"))
+            )
+            input_user.clear()
+            if username:
+                input_user.send_keys(username)
+
+          
+            input_pass = self.driver.find_element(By.ID, "sign-password")
+            input_pass.clear()
+            if password:
+                input_pass.send_keys(password)
+
+           
+            btn_confirm = self.driver.find_element(
+                By.XPATH, "//button[contains(@class,'btn') and contains(text(),'Sign up')]"
+            )
+            btn_confirm.click()
+            time.sleep(3)
+
+          
+            try:
+                alert = WebDriverWait(self.driver, 5).until(EC.alert_is_present())
+                text = alert.text
+                alert.accept()
+                time.sleep(2)
+                return text
+            except:
+                return "Nenhum alert encontrado"
+
+        except Exception as e:
+            return f"Erro durante cadastro: {str(e)}"
+
+    def executar_login(self, username: str, password: str) -> str:
+        """Executa o processo de login."""
+        try:
+            print(f"🔐 Executando login para: {username[:15]}...")
+            
+            btn_login = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "login2"))
+            )
+            btn_login.click()
+            time.sleep(2)
+
+            
+            input_user = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "loginusername"))
+            )
+            input_user.clear()
+            if username:
+                input_user.send_keys(username)
+
+            input_pass = self.driver.find_element(By.ID, "loginpassword")
+            input_pass.clear()
+            if password:
+                input_pass.send_keys(password)
+
+           
+            btn_confirm = self.driver.find_element(
+                By.XPATH, "//button[contains(@class,'btn') and contains(text(),'Log in')]"
+            )
+            btn_confirm.click()
+            time.sleep(3)
+
+           
+            try:
+                welcome_element = WebDriverWait(self.driver, 5).until(
+                    EC.presence_of_element_located((By.ID, "nameofuser"))
+                )
+                if welcome_element:
+                    return "login_success"
+            except:
+                pass
+
+         
+            try:
+                alert = WebDriverWait(self.driver, 5).until(EC.alert_is_present())
+                text = alert.text
+                alert.accept()
+                time.sleep(2)
+                return text
+            except:
+                return "Nenhum alert encontrado"
+
+        except Exception as e:
+            return f"Erro durante login: {str(e)}"
+
+    def executar_cenario(self, cenario_id: str) -> Dict[str, Any]:
+        """Executa um cenário específico."""
+        if cenario_id not in self.cenarios:
+            return {"erro": f"Cenário {cenario_id} não encontrado"}
+
+        cenario = self.cenarios[cenario_id]
+        inicio = datetime.now()
+
+        print(f"\n{'='*60}")
+        print(f"🧪 EXECUTANDO: {cenario['nome']}")
+        print(f"{'='*60}")
+        print(f"Tipo: {cenario['tipo'].upper()}")
+        print(f"Username: {cenario['username']}")
+        print(f"Password: {'*' * len(cenario['password']) if cenario['password'] else 'Vazio'}")
+        print(f"Esperado: {cenario['esperado']}")
+
+        try:
+       
+            if not self.acessar_site():
+                raise Exception("Falha ao acessar o site")
+
+           
+            if cenario['tipo'] == 'signup':
+                resultado_obtido = self.executar_cadastro(cenario['username'], cenario['password'])
+            elif cenario['tipo'] == 'login':
+                resultado_obtido = self.executar_login(cenario['username'], cenario['password'])
+            else:
+                raise Exception(f"Tipo de cenário desconhecido: {cenario['tipo']}")
+
+        
+            sucesso = resultado_obtido == cenario['esperado']
+            fim = datetime.now()
+            duracao = (fim - inicio).total_seconds()
+
+            resultado = {
+                'cenario_id': cenario_id,
+                'nome': cenario['nome'],
+                'tipo': cenario['tipo'],
+                'username': cenario['username'],
+                'password_length': len(cenario['password']) if cenario['password'] else 0,
+                'esperado': cenario['esperado'],
+                'obtido': resultado_obtido,
+                'sucesso': sucesso,
+                'duracao_segundos': round(duracao, 2),
+                'timestamp': inicio.strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '✅ PASSOU' if sucesso else '❌ FALHOU'
+            }
+
+            print(f"Resultado: {resultado_obtido}")
+            print(f"Status: {resultado['status']}")
+            print(f"Duração: {duracao:.2f}s")
+
+            return resultado
+
+        except Exception as e:
+            fim = datetime.now()
+            duracao = (fim - inicio).total_seconds()
+
+            resultado = {
+                'cenario_id': cenario_id,
+                'nome': cenario['nome'],
+                'tipo': cenario['tipo'],
+                'username': cenario['username'],
+                'password_length': len(cenario['password']) if cenario['password'] else 0,
+                'esperado': cenario['esperado'],
+                'obtido': f"ERRO: {str(e)}",
+                'sucesso': False,
+                'duracao_segundos': round(duracao, 2),
+                'timestamp': inicio.strftime('%Y-%m-%d %H:%M:%S'),
+                'status': '💥 ERRO'
+            }
+
+            print(f"❌ ERRO: {str(e)}")
+            return resultado
+
+    def executar_todos_cenarios(self):
+        """Executa todos os 10 cenários."""
+        print("🚀 INICIANDO AUTOMAÇÃO COMPLETA - DEMOBLAZE")
+        print(f"⏰ Início: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("🌐 Ambiente: Google Colab")
+
+        if not self.inicializar_driver():
+            print("❌ Falha ao inicializar driver")
+            return
+
+        try:
+            for i, cenario_id in enumerate(self.cenarios.keys(), 1):
+                print(f"\n🔄 Progresso: {i}/10 cenários")
+                resultado = self.executar_cenario(cenario_id)
+                self.resultados[cenario_id] = resultado
+                time.sleep(1) 
+
+        finally:
+            if self.driver:
+                self.driver.quit()
+                print("🔌 Driver finalizado")
+
+        print(f"\n🏁 AUTOMAÇÃO CONCLUÍDA!")
+        print(f"⏰ Fim: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+        self.gerar_relatorio_colab()
+        self.exibir_resumo()
+
+    def gerar_relatorio_colab(self):
+        """Gera relatórios otimizados para Colab."""
+        if not self.resultados:
+            print("❌ Nenhum resultado para gerar relatório")
+            return
+
+        # Cria DataFrame
+        df = pd.DataFrame(list(self.resultados.values()))
+
+        # Salva arquivos
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        csv_file = f"demoblaze_relatorio_{timestamp}.csv"
+        json_file = f"demoblaze_relatorio_{timestamp}.json"
+        
+        # Salva CSV
+        df.to_csv(csv_file, index=False, encoding='utf-8')
+        
+        # Salva JSON
+        with open(json_file, 'w', encoding='utf-8') as f:
+            json.dump(self.resultados, f, indent=2, ensure_ascii=False)
+
+        print(f"\n📊 RELATÓRIOS GERADOS:")
+        print(f"   📄 {csv_file}")
+        print(f"   📄 {json_file}")
+        
+       
+        print(f"\n📋 PREVIEW DOS RESULTADOS:")
+        print(df[['nome', 'status', 'duracao_segundos']].to_string(index=False))
+        
+        return df
+
+    def exibir_resumo(self):
+        """Exibe resumo executivo."""
+        if not self.resultados:
+            return
+
+        total = len(self.resultados)
+        sucessos = sum(1 for r in self.resultados.values() if r['sucesso'])
+        falhas = total - sucessos
+
+        tempo_total = sum(r['duracao_segundos'] for r in self.resultados.values())
+        tempo_medio = tempo_total / total if total > 0 else 0
+        taxa_sucesso = (sucessos / total) * 100 if total > 0 else 0
+
+        print(f"\n🎯 RESUMO EXECUTIVO:")
+        print(f"   ✅ Total de cenários: {total}")
+        print(f"   🟢 Sucessos: {sucessos}")
+        print(f"   🔴 Falhas: {falhas}")
+        print(f"   📊 Taxa de sucesso: {taxa_sucesso:.1f}%")
+        print(f"   ⏱️  Tempo total: {tempo_total:.2f}s")
+        print(f"   ⏱️  Tempo médio: {tempo_medio:.2f}s")
+
+        
+        falhas_detalhes = [r for r in self.resultados.values() if not r['sucesso']]
+        if falhas_detalhes:
+            print(f"\n🔍 CENÁRIOS QUE FALHARAM:")
+            for falha in falhas_detalhes:
+                print(f"   ❌ {falha['nome']}")
+                print(f"      Esperado: {falha['esperado']}")
+                print(f"      Obtido: {falha['obtido']}")
+
+
+def executar_automacao():
+    """Função principal para executar a automação."""
+    try:
+        print("🎭 INICIANDO AUTOMAÇÃO DEMOBLAZE NO GOOGLE COLAB")
+        print("=" * 60)
+        
+      
+        automacao = DemoblazeAutomacaoColab()
+        
+       
+        automacao.executar_todos_cenarios()
+        
+        print("\n" + "=" * 60)
+        print("🎉 AUTOMAÇÃO CONCLUÍDA COM SUCESSO!")
+        print("📁 Arquivos de relatório salvos no ambiente Colab")
+        print("💾 Use os comandos abaixo para baixar os arquivos:")
+        print("   from google.colab import files")
+        print("   files.download('demoblaze_relatorio_TIMESTAMP.csv')")
+        print("=" * 60)
+        
+        return automacao.resultados
+        
+    except Exception as e:
+        print(f"❌ Erro na execução: {e}")
+        return None
+
+
+if __name__ == "__main__":
+ 
+    resultados = executar_automacao()
+else:
+    print("✅ Módulo carregado! Execute executar_automacao() para iniciar os testes.")
